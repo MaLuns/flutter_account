@@ -32,9 +32,6 @@ dependencies:
   flutter_svg: ^0.22.0
   flutter_slidable: ^0.6.0
   drag_and_drop_lists: ^0.3.2
-  cloudbase_core: ^0.0.11
-  cloudbase_auth: ^0.0.14
-  cloudbase_function: ^0.0.2
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2

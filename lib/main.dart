@@ -14,7 +14,7 @@ void main() {
 
   runApp(
     GetMaterialApp(
-      title: '三元',
+      title: '哈哈',
       theme: themeLight,
       initialRoute: '/',
       defaultTransition: Transition.fade,
@@ -22,24 +22,4 @@ void main() {
       home: HomaPage(),
     ),
   );
-  // 初始化 CloudBase
-  /* CloudBaseCore core = CloudBaseCore.init({
-    'env': 'h-17b316',
-    'appAccess': {'key': 'd4979f35e570c228e2ece68bf5717624', 'version': '1'},
-    'timeout': 3000
-  });
-
-  CloudBaseAuth auth = CloudBaseAuth(core);
-  CloudBaseAuthState authState = await auth.getAuthState();
-
-  if (authState == null) {
-    await auth.signInAnonymously();
-    authState = await auth.getAuthState();
-    print(authState);
-  } */
-
-  /* CloudBaseFunction cloudbase = CloudBaseFunction(core);
-  Map<String, dynamic> data = {'a': 1, 'b': 2};
-  CloudBaseResponse res = await cloudbase.callFunction('oneday', data);
-  print(res.data); */
 }
