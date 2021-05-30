@@ -2,12 +2,47 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:shici/common/iconfont.dart';
+import 'package:shici/data/models/account_info_model.dart';
 import 'package:shici/data/models/project_model.dart';
+import 'package:shici/data/services/account_mange/account_mange_abstract.dart';
 import 'package:shici/data/services/project_mange/project_mange_abstract.dart';
 import 'package:shici/routes/routes.dart';
 import 'package:shici/widgets/calculator.dart';
 
-class AddAccountPage extends GetView<AbstractProjectMange> {
+// ignore: must_be_immutable
+class AddAccountPage extends GetView<AbstractAccountMange> {
+  var payProjectID = 0;
+  var incomeProjectID = 0;
+
+  void _showToast(String title) {
+    Fluttertoast.showToast(
+      msg: title,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.black87,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
+
+  void _save(int type, int id, double money, String date, String remark) async {
+    if (id == 0) {
+      _showToast('请选择收支分类');
+      return;
+    }
+    if (money == 0) {
+      _showToast('请输入收支金额');
+      return;
+    }
+    int res = await controller.addAccount(AccountInfoModel(date: date, projectID: id, money: money, type: type));
+    if (res > 0) {
+      Get.back();
+    } else {
+      _showToast('新增失败');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -28,25 +63,11 @@ class AddAccountPage extends GetView<AbstractProjectMange> {
             Column(
               children: [
                 Expanded(
-                  child: ProjectGridView(projectType: 'pay'),
+                  child: ProjectGridView(projectType: 'pay', callback: (id) => payProjectID = id),
                 ),
                 CalculatorWidget(
-                  callback: (text, date) {
-                    if (text == '0') {
-                      Fluttertoast.showToast(
-                        msg: "请输入收支金额",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.black87,
-                        textColor: Colors.white,
-                        fontSize: 16.0,
-                      );
-                      return;
-                    }
-                    print(date.toString().substring(0, 10));
-                    print(text);
-                    print(text.runtimeType);
+                  callback: (double money, DateTime date, String remark) {
+                    _save(1, payProjectID, money, date.toString(), remark);
                   },
                 ),
               ],
@@ -54,9 +75,13 @@ class AddAccountPage extends GetView<AbstractProjectMange> {
             Column(
               children: [
                 Expanded(
-                  child: ProjectGridView(projectType: 'income'),
+                  child: ProjectGridView(projectType: 'income', callback: (id) => incomeProjectID = id),
                 ),
-                CalculatorWidget(),
+                CalculatorWidget(
+                  callback: (double money, DateTime date, String remark) {
+                    _save(2, incomeProjectID, money, date.toString(), remark);
+                  },
+                ),
               ],
             ),
           ],
@@ -68,8 +93,9 @@ class AddAccountPage extends GetView<AbstractProjectMange> {
 
 // 类别格子
 class ProjectGridView extends GetView<AbstractProjectMange> {
-  ProjectGridView({Key key, @required this.projectType}) : super(key: key);
+  ProjectGridView({Key key, @required this.projectType, this.callback}) : super(key: key);
   final String projectType;
+  final Function callback;
   final _index = 0.obs;
 
   @override
@@ -102,7 +128,12 @@ class ProjectGridView extends GetView<AbstractProjectMange> {
                     ),
                   )
                 : Obx(() => GestureDetector(
-                      onTap: () => _index.value = _.projectMap[projectType][index].id,
+                      onTap: () {
+                        _index.value = _.projectMap[projectType][index].id;
+                        if (callback != null) {
+                          callback(_index.value);
+                        }
+                      },
                       child: ProjectItem(
                         item: _.projectMap[projectType][index],
                         color: _index.value == _.projectMap[projectType][index].id ? Colors.yellow[600] : Color(0xfff2f2f2),

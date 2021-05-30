@@ -120,7 +120,7 @@ class CalculatorWidget extends StatelessWidget {
         }
         break;
       case '完成':
-        callback(_number.value, _dateTime.value);
+        callback(double.parse(_number.value), _dateTime.value, '');
         break;
       default:
     }

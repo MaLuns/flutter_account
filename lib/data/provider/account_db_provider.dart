@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shici/data/models/account_info_model.dart';
+import 'package:shici/data/models/sum_account_model.dart';
 import 'package:shici/data/provider/base_db_provider.dart';
 import 'package:sqflite/sqlite_api.dart';
 
@@ -19,7 +21,8 @@ class AccountDbProvider extends BaseDbProvider {
     CREATE TABLE account (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         projectID INTEGER NOT NULL,
-        money DECIMAL(10,2) NOT NULL,
+        payMoney DECIMAL(10,2) NOT NULL DEFAULT 0,
+        incomeMoney DECIMAL(10,2) NOT NULL DEFAULT 0,
         type INTEGER NOT NULL,
         date DATE NOT NULL,
         remark TEXT,
@@ -32,9 +35,51 @@ class AccountDbProvider extends BaseDbProvider {
   @override
   tableName() => name;
 
-  insertProject({@required int projectID, @required double money, @required String date, int type = 1, String remark = ''}) async {
+  Future<int> insertAccount({@required int projectID, @required double money, @required String date, int type = 1, String remark = ''}) async {
     Database db = await getDataBase();
-    int res = await db.rawInsert('''INSERT INTO account (projectID,money,type，date,remark) VALUES($projectID,$money,$type,'$date','$remark')''');
-    print(res);
+    double payMoney = type == 1 ? money : 0;
+    double incomeMoney = type == 1 ? 0 : money;
+    return db.rawInsert('''INSERT INTO account (projectID,payMoney,incomeMoney,type,date,remark) VALUES($projectID,$payMoney,$incomeMoney,$type,'$date','$remark')''');
+  }
+
+  Future<List<AccountInfoModel>> getAccountInfo(String date) async {
+    Database db = await getDataBase();
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT 
+      FROM account a LEFT JOIN project p on a.projectID=p.id
+      WHERE  strftime('%Y-%m-%d',a.date)='$date'
+    ''');
+    return List.generate(maps.length, (i) {
+      return AccountInfoModel(
+        id: maps[i]['id'],
+        projectID: maps[i]['projectID'],
+        money: maps[i]['money'],
+        name: maps[i]['name'],
+        type: maps[i]['type'],
+        icon: maps[i]['icon'],
+        date: maps[i]['date'],
+        remark: maps[i]['remark'],
+      );
+    });
+  }
+
+  Future<List<SumAccountModel>> getTimi(String date) async {
+    Database db = await getDataBase();
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT SUM(a.payMoney) payMoney,SUM(a.incomeMoney) incomeMoney,strftime('%w',a.date) weekday,strftime('%Y-%m-%d',a.date) date
+      FROM account a  WHERE  strftime('%Y-%m',a.date)='$date'
+      GROUP BY strftime('%Y-%m-%d',a.date) ORDER BY a.date DESC
+    ''');
+
+    List<SumAccountModel> _list = [];
+    for (var i = 0; i < maps.length; i++) {
+      _list.add(SumAccountModel(
+        payMoney: maps[i]['payMoney'],
+        incomeMoney: maps[i]['incomeMoney'],
+        weekday: maps[i]['weekday'],
+        date: maps[i]['date'],
+      ));
+    }
+    return _list;
   }
 }

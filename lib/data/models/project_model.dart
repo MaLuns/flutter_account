@@ -1,10 +1,23 @@
 class ProjectModel {
+  /// id
   int id;
+
+  /// 名称
   String name;
+
+  /// 类型 1 支出 2 收入
   int type;
+
+  /// 图标
   String icon;
+
+  /// 是否删除
   bool deleted;
+
+  /// 是否是内置默认类型
   bool isDefault;
+
+  /// 排序
   int sort;
   String updateTime;
 
