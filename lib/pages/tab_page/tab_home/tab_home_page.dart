@@ -154,7 +154,7 @@ class HomeList extends StatelessWidget {
                 ),
                 title: Text(mo.name),
                 //subtitle: index % 2 == 0 ? Text('备注信息') : null,
-                trailing: Text(mo.money.toString()),
+                trailing: Text('${mo.type == 1 ? '-' : ''}${mo.money}'),
               ),
               secondaryActions: <Widget>[
                 Builder(
