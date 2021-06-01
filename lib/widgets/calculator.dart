@@ -45,9 +45,9 @@ class CalculatorWidget extends StatelessWidget {
   void _compute({opt = ''}) {
     num res;
     if (_opt.value == '-') {
-      res = (num.parse(_number.value) - num.parse(_numberTwo.value));
+      res = (num.parse(_number.value) * 100 - num.parse(_numberTwo.value) * 100) / 100;
     } else {
-      res = (num.parse(_number.value) + num.parse(_numberTwo.value));
+      res = (num.parse(_number.value) * 100 + num.parse(_numberTwo.value) * 100) / 100;
     }
     _number.value = (res == 0 ? 0 : (res % res.toInt() == 0 ? res.toInt() : res)).toString();
     _opt.value = opt;

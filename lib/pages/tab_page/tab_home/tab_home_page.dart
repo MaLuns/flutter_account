@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:shici/common/iconfont.dart';
 import 'package:shici/common/year_month_picker.dart';
 import 'package:get/get.dart';
+import 'package:shici/data/models/account_info_model.dart';
+import 'package:shici/data/models/sum_account_model.dart';
+import 'package:shici/data/services/account_mange/account_mange_abstract.dart';
+import 'package:shici/data/services/account_mange/account_mange_service.dart';
 
 class TabHomePage extends StatefulWidget {
   @override
@@ -81,27 +86,29 @@ class _TabHomePageState extends State<TabHomePage> with AutomaticKeepAliveClient
 
 // 列表
 class HomeList extends StatelessWidget {
-  const HomeList({
-    Key key,
-    @required SlidableController slidableController,
-  })  : _slidableController = slidableController,
+  const HomeList({Key key, @required SlidableController slidableController})
+      : _slidableController = slidableController,
         super(key: key);
 
   final SlidableController _slidableController;
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: EdgeInsets.only(top: 0, bottom: 30),
-      children: [
-        buildColumn(),
-        buildColumn(),
-        buildColumn(),
-      ],
+    return GetBuilder<AbstractAccountMange>(
+      init: AccountMangeService(),
+      builder: (_) {
+        return ListView(
+          padding: EdgeInsets.only(top: 0, bottom: 30),
+          children: List.generate(
+            _.sumAccountModelList.length,
+            (index) => buildColumn(_.sumAccountModelList[index]),
+          ),
+        );
+      },
     );
   }
 
-  Column buildColumn() {
+  Column buildColumn(SumAccountModel model) {
     return Column(
       children: [
         Container(
@@ -112,55 +119,58 @@ class HomeList extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Text('05月13号', style: TextStyle(color: Colors.black54)),
+              Text('${model.date}', style: TextStyle(color: Colors.black54)),
               SizedBox(width: 10),
-              Text('星期四', style: TextStyle(color: Colors.black54)),
+              Text('星期${model.weekday}', style: TextStyle(color: Colors.black54)),
               Expanded(child: Container()),
-              Text('支出：65565.09', style: TextStyle(color: Colors.black54)),
+              Text('支出：${model.payMoney}', style: TextStyle(color: Colors.black54)),
               SizedBox(width: 10),
-              Text('支出：65565.09', style: TextStyle(color: Colors.black54)),
+              Text('收入：${model.incomeMoney}', style: TextStyle(color: Colors.black54)),
             ],
           ),
         ),
         ListView.separated(
           padding: EdgeInsets.zero,
-          itemCount: 3,
+          itemCount: model.childen.length,
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) => Slidable(
-            actionExtentRatio: .15,
-            actionPane: SlidableScrollActionPane(),
-            controller: _slidableController,
-            child: ListTile(
-              onTap: () {
-                _slidableController.activeState?.close();
-              },
-              leading: Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Color(0xffeeeeee),
-                  borderRadius: BorderRadius.circular(50),
+          itemBuilder: (context, index) {
+            AccountInfoModel mo = model.childen[index];
+            return Slidable(
+              actionExtentRatio: .15,
+              actionPane: SlidableScrollActionPane(),
+              controller: _slidableController,
+              child: ListTile(
+                onTap: () {
+                  _slidableController.activeState?.close();
+                },
+                leading: Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Color(0xffeeeeee),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: Icon(IconFont.icon[mo.icon]),
                 ),
-                child: Icon(Icons.spa),
+                title: Text(mo.name),
+                //subtitle: index % 2 == 0 ? Text('备注信息') : null,
+                trailing: Text(mo.money.toString()),
               ),
-              title: Text('社交'),
-              //subtitle: index % 2 == 0 ? Text('备注信息') : null,
-              trailing: Text('-9889'),
-            ),
-            secondaryActions: <Widget>[
-              Builder(
-                builder: (context) => SlideAction(
-                  child: Text('删除', style: TextStyle(color: Colors.white)),
-                  color: Colors.red,
-                  closeOnTap: false,
-                  onTap: () {
-                    print(1);
-                    _slidableController.activeState?.close();
-                  },
+              secondaryActions: <Widget>[
+                Builder(
+                  builder: (context) => SlideAction(
+                    child: Text('删除', style: TextStyle(color: Colors.white)),
+                    color: Colors.red,
+                    closeOnTap: false,
+                    onTap: () {
+                      print(1);
+                      _slidableController.activeState?.close();
+                    },
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            );
+          },
           separatorBuilder: (context, index) => Divider(height: 0, thickness: 1, color: Color(0xFFeeeeee)),
         ),
       ],

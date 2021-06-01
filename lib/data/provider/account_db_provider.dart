@@ -45,7 +45,7 @@ class AccountDbProvider extends BaseDbProvider {
   Future<List<AccountInfoModel>> getAccountInfo(String date) async {
     Database db = await getDataBase();
     final List<Map<String, dynamic>> maps = await db.rawQuery('''
-      SELECT 
+      SELECT a.id,a.projectID,p.name,a.type,p.icon,a.date,a.remark,CASE WHEN a.type = 1 THEN a.payMoney ELSE a.incomeMoney END money
       FROM account a LEFT JOIN project p on a.projectID=p.id
       WHERE  strftime('%Y-%m-%d',a.date)='$date'
     ''');
@@ -53,7 +53,7 @@ class AccountDbProvider extends BaseDbProvider {
       return AccountInfoModel(
         id: maps[i]['id'],
         projectID: maps[i]['projectID'],
-        money: maps[i]['money'],
+        money: (maps[i]['money'] as num).toDouble(),
         name: maps[i]['name'],
         type: maps[i]['type'],
         icon: maps[i]['icon'],
@@ -67,17 +67,19 @@ class AccountDbProvider extends BaseDbProvider {
     Database db = await getDataBase();
     final List<Map<String, dynamic>> maps = await db.rawQuery('''
       SELECT SUM(a.payMoney) payMoney,SUM(a.incomeMoney) incomeMoney,strftime('%w',a.date) weekday,strftime('%Y-%m-%d',a.date) date
-      FROM account a  WHERE  strftime('%Y-%m',a.date)='$date'
+      FROM account a WHERE strftime('%Y-%m',a.date)='$date'
       GROUP BY strftime('%Y-%m-%d',a.date) ORDER BY a.date DESC
     ''');
 
     List<SumAccountModel> _list = [];
     for (var i = 0; i < maps.length; i++) {
+      List<AccountInfoModel> childen = await getAccountInfo(maps[i]['date']);
       _list.add(SumAccountModel(
-        payMoney: maps[i]['payMoney'],
-        incomeMoney: maps[i]['incomeMoney'],
+        payMoney: (maps[i]["payMoney"] as num).toDouble(),
+        incomeMoney: (maps[i]['incomeMoney'] as num).toDouble(),
         weekday: maps[i]['weekday'],
         date: maps[i]['date'],
+        childen: childen,
       ));
     }
     return _list;
