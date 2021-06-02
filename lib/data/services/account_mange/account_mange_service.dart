@@ -17,13 +17,22 @@ class AccountMangeService extends AbstractAccountMange {
   Future<List<SumAccountModel>> getSumAccount(String date) async {
     AccountDbProvider adp = AccountDbProvider();
     sumAccountModelList = await adp.getSumAccount(date);
+    await getMonthSum(date);
     update();
     return sumAccountModelList;
   }
 
   @override
+  Future<void> getMonthSum(String date) async {
+    AccountDbProvider adp = AccountDbProvider();
+    monthSum = await adp.getMonthSum(date);
+  }
+
+  @override
   void onReady() {
     super.onReady();
-    getSumAccount(DateTime.now().toString().substring(0, 7));
+    final month = DateTime.now().toString().substring(0, 7);
+    getSumAccount(month);
+    print('ready');
   }
 }

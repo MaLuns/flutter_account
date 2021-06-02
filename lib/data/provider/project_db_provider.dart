@@ -19,7 +19,7 @@ class ProjectDbProvider {
     return _instance;
   }
 
-  // 新增
+  // 新增分类
   String insertProject({@required String name, @required int sort, int type = 1, @required String iconStr, bool isDefault = false}) {
     return '''
     INSERT INTO project (name,type,icon,sort,isDefault) VALUES('$name',$type,'$iconStr',$sort,$isDefault);
@@ -32,7 +32,7 @@ class ProjectDbProvider {
     return db.rawUpdate('UPDATE project SET sort=$sort WHERE id=$id');
   }
 
-  // 查询
+  // 获取分类列表
   Future<List<ProjectModel>> projects({String where = '1=1'}) async {
     final Database db = await DbHelper.getDb();
     print(db);

@@ -24,6 +24,9 @@ class _TabHomePageState extends State<TabHomePage> with AutomaticKeepAliveClient
 
   @override
   void initState() {
+    // 注入 AccountMangeService
+    Get.put<AbstractAccountMange>(AccountMangeService());
+
     super.initState();
     _slidableController = SlidableController(
       onSlideIsOpenChanged: _handleSlideIsOpenChanged,
@@ -95,7 +98,7 @@ class HomeList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<AbstractAccountMange>(
-      init: AccountMangeService(),
+      init: Get.find<AbstractAccountMange>(),
       builder: (_) {
         return ListView(
           padding: EdgeInsets.only(top: 0, bottom: 30),
@@ -112,11 +115,8 @@ class HomeList extends StatelessWidget {
     return Column(
       children: [
         Container(
-          height: 40,
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(color: Color(0xffe0e0e0), width: 1)),
-          ),
+          height: 50,
+          padding: EdgeInsets.only(left: 10, right: 10, top: 10),
           child: Row(
             children: [
               Text(model.date, style: TextStyle(color: Colors.black54)),
@@ -129,6 +129,7 @@ class HomeList extends StatelessWidget {
             ],
           ),
         ),
+        Divider(height: 0, thickness: .5, color: Color(0xffe0e0e0)),
         ListView.separated(
           padding: EdgeInsets.zero,
           itemCount: model.childen.length,
@@ -141,9 +142,8 @@ class HomeList extends StatelessWidget {
               actionPane: SlidableScrollActionPane(),
               controller: _slidableController,
               child: ListTile(
-                onTap: () {
-                  _slidableController.activeState?.close();
-                },
+                onTap: () => _slidableController.activeState?.close(),
+                contentPadding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                 leading: Container(
                   padding: EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -171,7 +171,7 @@ class HomeList extends StatelessWidget {
               ],
             );
           },
-          separatorBuilder: (context, index) => Divider(height: 0, thickness: 1, color: Color(0xFFeeeeee)),
+          separatorBuilder: (context, index) => Divider(height: 0, thickness: .5, color: Color(0xFFeeeeee)),
         ),
       ],
     );
@@ -224,6 +224,8 @@ class HomeSum extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AccountMangeService ams = Get.find<AbstractAccountMange>();
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -236,7 +238,7 @@ class HomeSum extends StatelessWidget {
               pickerModel: YearMonthPicker(locale: LocaleType.zh, currentTime: _dateTime.value),
               onConfirm: (date) {
                 _dateTime.value = date;
-                print(date);
+                ams.getSumAccount(date.toString().substring(0, 7));
               },
             );
           },
@@ -267,35 +269,38 @@ class HomeSum extends StatelessWidget {
           margin: EdgeInsets.only(right: 24, left: 16),
         ),
         Expanded(
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('收入', style: TextStyle(color: Colors.black54)),
-                    Text(
-                      '0.00',
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w300),
-                    ),
-                  ],
+          child: GetBuilder<AbstractAccountMange>(
+            init: Get.find<AbstractAccountMange>(),
+            builder: (_) => Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('收入', style: TextStyle(color: Colors.black54)),
+                      Text(
+                        '${_.monthSum['payMoney']}',
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w300),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('支出', style: TextStyle(color: Colors.black54)),
-                    Text(
-                      '0.00',
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w300),
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('支出', style: TextStyle(color: Colors.black54)),
+                      Text(
+                        '${_.monthSum['incomeMoney']}',
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w300),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
