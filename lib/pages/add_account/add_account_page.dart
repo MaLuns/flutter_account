@@ -9,10 +9,19 @@ import 'package:shici/data/services/project_mange/project_mange_abstract.dart';
 import 'package:shici/routes/routes.dart';
 import 'package:shici/widgets/calculator.dart';
 
-// ignore: must_be_immutable
+class TypeModel {
+  String key;
+  String title;
+  int id;
+  int type; // 1支出  2 收入
+  TypeModel({this.type, this.key, this.title, this.id});
+}
+
 class AddAccountPage extends GetView<AbstractAccountMange> {
-  var payProjectID = 0;
-  var incomeProjectID = 0;
+  final List<TypeModel> _map = [
+    TypeModel(key: 'pay', title: '支出', id: 0, type: 1),
+    TypeModel(key: 'income', title: '收入', id: 0, type: 2),
+  ];
 
   void _showToast(String title) {
     Fluttertoast.showToast(
@@ -52,41 +61,31 @@ class AddAccountPage extends GetView<AbstractAccountMange> {
           elevation: 0.0,
           title: TabBar(
             indicatorSize: TabBarIndicatorSize.label,
-            tabs: <Widget>[
-              Tab(text: '支出'),
-              Tab(text: '收入'),
-            ],
+            tabs: _map.map((value) => Tab(text: value.title)).toList(),
           ),
         ),
         body: TabBarView(
-          children: [
-            Column(
-              children: [
-                Expanded(
-                  child: ProjectGridView(projectType: 'pay', callback: (id) => payProjectID = id),
-                ),
-                CalculatorWidget(
-                  callback: (double money, DateTime date, String remark) {
-                    _save(1, payProjectID, money, date.toString(), remark);
-                  },
-                ),
-              ],
-            ),
-            Column(
-              children: [
-                Expanded(
-                  child: ProjectGridView(projectType: 'income', callback: (id) => incomeProjectID = id),
-                ),
-                CalculatorWidget(
-                  callback: (double money, DateTime date, String remark) {
-                    _save(2, incomeProjectID, money, date.toString(), remark);
-                  },
-                ),
-              ],
-            ),
-          ],
+          children: _map.map((e) => buildColumn(e)).toList(),
         ),
       ),
+    );
+  }
+
+  Column buildColumn(TypeModel model) {
+    return Column(
+      children: [
+        Expanded(
+          child: ProjectGridView(
+            projectType: model.key,
+            callback: (id) => model.id = id,
+          ),
+        ),
+        CalculatorWidget(
+          callback: (double money, DateTime date, String remark) {
+            _save(model.type, model.id, money, date.toString(), remark);
+          },
+        ),
+      ],
     );
   }
 }
@@ -146,6 +145,7 @@ class ProjectGridView extends GetView<AbstractProjectMange> {
   }
 }
 
+// 类别项
 class ProjectItem extends StatelessWidget {
   const ProjectItem({Key key, @required this.item, @required this.color}) : super(key: key);
   final Color color;

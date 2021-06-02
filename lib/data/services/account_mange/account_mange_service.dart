@@ -16,7 +16,7 @@ class AccountMangeService extends AbstractAccountMange {
   @override
   Future<List<SumAccountModel>> getSumAccount(String date) async {
     AccountDbProvider adp = AccountDbProvider();
-    sumAccountModelList = await adp.getTimi(date);
+    sumAccountModelList = await adp.getSumAccount(date);
     update();
     return sumAccountModelList;
   }
@@ -24,6 +24,6 @@ class AccountMangeService extends AbstractAccountMange {
   @override
   void onReady() {
     super.onReady();
-    getSumAccount('2021-05');
+    getSumAccount(DateTime.now().toString().substring(0, 7));
   }
 }

@@ -20,13 +20,13 @@ class AccountDbProvider extends BaseDbProvider {
     return '''
     CREATE TABLE account (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        projectID INTEGER NOT NULL,
-        payMoney DECIMAL(10,2) NOT NULL DEFAULT 0,
-        incomeMoney DECIMAL(10,2) NOT NULL DEFAULT 0,
-        type INTEGER NOT NULL,
-        date DATE NOT NULL,
-        remark TEXT,
-        deleted BOOLEAN DEFAULT false,
+        projectID INTEGER NOT NULL,  -- 类别ID
+        payMoney DECIMAL(10,2) NOT NULL DEFAULT 0, -- 支出金额
+        incomeMoney DECIMAL(10,2) NOT NULL DEFAULT 0, -- 收入金额
+        type INTEGER NOT NULL, -- 类型 1 支出 2 收入
+        date TEXT NOT NULL, -- 日期
+        remark TEXT, -- 备注
+        deleted BOOLEAN DEFAULT false, -- 删除标识
         updateTime DATETIME DEFAULT (datetime('now'))
     );
     ''';
@@ -63,7 +63,7 @@ class AccountDbProvider extends BaseDbProvider {
     });
   }
 
-  Future<List<SumAccountModel>> getTimi(String date) async {
+  Future<List<SumAccountModel>> getSumAccount(String date) async {
     Database db = await getDataBase();
     final List<Map<String, dynamic>> maps = await db.rawQuery('''
       SELECT SUM(a.payMoney) payMoney,SUM(a.incomeMoney) incomeMoney,strftime('%w',a.date) weekday,strftime('%Y-%m-%d',a.date) date

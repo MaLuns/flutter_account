@@ -1,3 +1,4 @@
+import 'package:shici/common/db_helper.dart';
 import 'package:shici/data/models/project_model.dart';
 import 'package:shici/data/provider/project_db_provider.dart';
 import 'package:shici/data/services/project_mange/project_mange_abstract.dart';
@@ -59,7 +60,7 @@ class ProjectMangeService extends AbstractProjectMange {
       iconStr: iconStr,
       type: type == 'pay' ? 1 : 2,
     );
-    Database db = await pr.getDataBase();
+    Database db = await DbHelper.getDb();
     await db.rawInsert(sql);
     if (type == 'pay') {
       loadPayProjects();
@@ -71,8 +72,9 @@ class ProjectMangeService extends AbstractProjectMange {
   @override
   Future<void> stopOrStartProject(ProjectModel pm, String type) async {
     ProjectDbProvider pr = ProjectDbProvider();
-    Database db = await pr.getDataBase();
-    await db.update(pr.tableName(), {'deleted': 1}, where: ' id=${pm.id}');
+    Database db = await DbHelper.getDb();
+
+    await db.update(pr.tableName, {'deleted': 1}, where: ' id=${pm.id}');
     projectMap[type].remove(pm);
     update();
   }

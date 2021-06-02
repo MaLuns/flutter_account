@@ -119,9 +119,9 @@ class HomeList extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Text('${model.date}', style: TextStyle(color: Colors.black54)),
+              Text(model.date, style: TextStyle(color: Colors.black54)),
               SizedBox(width: 10),
-              Text('星期${model.weekday}', style: TextStyle(color: Colors.black54)),
+              Text(model.weekdayStr, style: TextStyle(color: Colors.black54)),
               Expanded(child: Container()),
               Text('支出：${model.payMoney}', style: TextStyle(color: Colors.black54)),
               SizedBox(width: 10),

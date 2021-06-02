@@ -41,7 +41,7 @@ class CalculatorWidget extends StatelessWidget {
     );
   }
 
-  // 计算
+  /// 计算
   void _compute({opt = ''}) {
     num res;
     if (_opt.value == '-') {
@@ -54,19 +54,19 @@ class CalculatorWidget extends StatelessWidget {
     _numberTwo.value = '';
   }
 
-  // 是否是Int
+  /// 是否是Int
   bool isInteger(String text) {
     RegExp number = RegExp(r"[0-9]+");
     return number.hasMatch(text) && !text.contains("\.");
   }
 
-  // 是否是数字
+  /// 是否是数字
   bool isNumber(String text) {
     RegExp number = RegExp(r"^[-]*[0-9]{0,8}.?[0-9]{0,2}$");
     return number.hasMatch(text);
   }
 
-  // 操作
+  /// 操作
   void _update(String optkey) {
     switch (optkey) {
       case '0':
