@@ -126,6 +126,29 @@ class CalculatorWidget extends StatelessWidget {
     }
   }
 
+  void showInput(context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          color: Colors.white,
+          child: TextField(
+            autofocus: true,
+            maxLines: 1,
+            decoration: InputDecoration(
+              hintText: "点击写入备注",
+              contentPadding: EdgeInsets.symmetric(vertical: 5),
+              fillColor: Colors.transparent,
+              filled: false,
+              enabledBorder: _getOutlineInputBorder(),
+              focusedBorder: _getOutlineInputBorder(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final double bottomPadding = MediaQuery.of(context).padding.bottom;
@@ -153,7 +176,12 @@ class CalculatorWidget extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: TextField(
+                  child: GestureDetector(
+                    onTap: () {
+                      showInput(context);
+                    },
+                    child: Text('点击写入备注'),
+                  ), /* TextField(
                     maxLines: 1,
                     decoration: InputDecoration(
                       hintText: "点击写入备注",
@@ -163,7 +191,7 @@ class CalculatorWidget extends StatelessWidget {
                       enabledBorder: _getOutlineInputBorder(),
                       focusedBorder: _getOutlineInputBorder(),
                     ),
-                  ),
+                  ), */
                 ),
                 Expanded(
                   child: Obx(

@@ -57,6 +57,7 @@ class AddAccountPage extends GetView<AbstractAccountMange> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           elevation: 0.0,
           title: TabBar(
@@ -97,50 +98,59 @@ class ProjectGridView extends GetView<AbstractProjectMange> {
   final Function callback;
   final _index = 0.obs;
 
+  Widget builidss() {
+    return Wrap();
+  }
+
   @override
   Widget build(BuildContext context) {
-    print(_index.value);
-    return GetBuilder<AbstractProjectMange>(
-      init: controller,
-      builder: (_) {
-        return GridView.builder(
-          itemCount: _.projectMap[projectType].length + 1,
-          shrinkWrap: true,
-          padding: EdgeInsets.all(16),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            childAspectRatio: 1 / 1,
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
-          ),
-          itemBuilder: (context, index) {
-            return _.projectMap[projectType].length == index
-                ? GestureDetector(
-                    onTap: () {
-                      Get.toNamed(AppRoutes.SetProject, arguments: {
-                        'type': projectType,
-                      });
-                    },
-                    child: ProjectItem(
-                      item: ProjectModel(name: '设置', icon: 'shezhi'),
-                      color: Color(0xfff2f2f2),
-                    ),
-                  )
-                : Obx(() => GestureDetector(
-                      onTap: () {
-                        _index.value = _.projectMap[projectType][index].id;
-                        if (callback != null) {
-                          callback(_index.value);
-                        }
-                      },
-                      child: ProjectItem(
-                        item: _.projectMap[projectType][index],
-                        color: _index.value == _.projectMap[projectType][index].id ? Colors.yellow[600] : Color(0xfff2f2f2),
-                      ),
-                    ));
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+      physics: BouncingScrollPhysics(),
+      child: GetBuilder<AbstractProjectMange>(
+        init: controller,
+        builder: (_) {
+          return Wrap(
+            spacing: 16.0,
+            runSpacing: 8.0,
+            children: _.projectMap[projectType].map((e) => buildItemIcon(_, e)).toList()..add(buildSettingIcon()),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildItemIcon(AbstractProjectMange _, ProjectModel project) {
+    return Obx(
+      () => GestureDetector(
+        onTap: () {
+          _index.value = project.id;
+          if (callback != null) {
+            callback(_index.value);
+          }
+        },
+        child: ProjectItem(
+          item: project,
+          color: _index.value == project.id ? Colors.yellow[600] : Color(0xfff2f2f2),
+        ),
+      ),
+    );
+  }
+
+  Widget buildSettingIcon() {
+    return GestureDetector(
+      onTap: () {
+        Get.toNamed(
+          AppRoutes.SetProject,
+          arguments: {
+            'type': projectType,
           },
         );
       },
+      child: ProjectItem(
+        item: ProjectModel(name: '设置', icon: 'shezhi'),
+        color: Color(0xfff2f2f2),
+      ),
     );
   }
 }
@@ -154,11 +164,13 @@ class ProjectItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: 60,
+      height: 80,
       child: Column(
         children: [
           Container(
+            height: 60,
             padding: EdgeInsets.all(10),
-            margin: EdgeInsets.only(bottom: 10),
             decoration: BoxDecoration(
               color: color,
               borderRadius: BorderRadius.circular(50),
