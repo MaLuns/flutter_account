@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:shici/common/iconfont.dart';
-import 'package:shici/common/year_month_picker.dart';
 import 'package:get/get.dart';
-import 'package:shici/data/models/account_info_model.dart';
-import 'package:shici/data/models/sum_account_model.dart';
 import 'package:shici/data/services/account_mange/account_mange_abstract.dart';
 import 'package:shici/data/services/account_mange/account_mange_service.dart';
+import 'package:shici/pages/tab_page/tab_home/widgets/home_list.dart';
+import 'package:shici/pages/tab_page/tab_home/widgets/home_sum.dart';
+
+import 'widgets/home_nav.dart';
 
 class TabHomePage extends StatefulWidget {
   @override
@@ -21,11 +20,13 @@ class _TabHomePageState extends State<TabHomePage> with AutomaticKeepAliveClient
   final double _sumHeight = 80;
   final double _navHeight = 80;
   SlidableController _slidableController;
+  AccountMangeService accountMangeService;
 
   @override
   void initState() {
+    accountMangeService = AccountMangeService();
     // 注入 AccountMangeService
-    Get.put<AbstractAccountMange>(AccountMangeService());
+    Get.put<AbstractAccountMange>(accountMangeService);
 
     super.initState();
     _slidableController = SlidableController(
@@ -48,7 +49,21 @@ class _TabHomePageState extends State<TabHomePage> with AutomaticKeepAliveClient
         height: double.maxFinite,
         child: Stack(
           children: [
-            Container(height: _bgHeight + topPadding, color: Theme.of(context).primaryColor),
+            Positioned(
+              top: _sumHeight + _navHeight + _titleHeight + topPadding,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: HomeList(
+                slidableController: _slidableController,
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              height: _bgHeight + topPadding,
+              child: Container(height: _bgHeight + topPadding, color: Theme.of(context).primaryColor),
+            ),
             Positioned(
               top: topPadding,
               left: 0,
@@ -62,13 +77,6 @@ class _TabHomePageState extends State<TabHomePage> with AutomaticKeepAliveClient
               right: 10,
               height: _sumHeight,
               child: HomeSum(),
-            ),
-            Positioned(
-              top: _sumHeight + _navHeight + _titleHeight + topPadding,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: HomeList(slidableController: _slidableController),
             ),
             Positioned(
               top: _sumHeight + _titleHeight + topPadding,
@@ -85,225 +93,4 @@ class _TabHomePageState extends State<TabHomePage> with AutomaticKeepAliveClient
 
   @override
   bool get wantKeepAlive => true;
-}
-
-// 列表
-class HomeList extends StatelessWidget {
-  const HomeList({Key key, @required SlidableController slidableController})
-      : _slidableController = slidableController,
-        super(key: key);
-
-  final SlidableController _slidableController;
-
-  @override
-  Widget build(BuildContext context) {
-    return GetBuilder<AbstractAccountMange>(
-      init: Get.find<AbstractAccountMange>(),
-      builder: (_) {
-        return ListView(
-          padding: EdgeInsets.only(top: 0, bottom: 30),
-          children: List.generate(
-            _.sumAccountModelList.length,
-            (index) => buildColumn(_.sumAccountModelList[index]),
-          ),
-        );
-      },
-    );
-  }
-
-  Column buildColumn(SumAccountModel model) {
-    return Column(
-      children: [
-        Container(
-          height: 50,
-          padding: EdgeInsets.only(left: 10, right: 10, top: 10),
-          child: Row(
-            children: [
-              Text(model.date, style: TextStyle(color: Colors.black54)),
-              SizedBox(width: 10),
-              Text(model.weekdayStr, style: TextStyle(color: Colors.black54)),
-              Expanded(child: Container()),
-              Text('支出：${model.payMoney}', style: TextStyle(color: Colors.black54)),
-              SizedBox(width: 10),
-              Text('收入：${model.incomeMoney}', style: TextStyle(color: Colors.black54)),
-            ],
-          ),
-        ),
-        Divider(height: 0, thickness: .5, color: Color(0xffe0e0e0)),
-        ListView.separated(
-          padding: EdgeInsets.zero,
-          itemCount: model.childen.length,
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) {
-            AccountInfoModel mo = model.childen[index];
-            return Slidable(
-              actionExtentRatio: .15,
-              actionPane: SlidableScrollActionPane(),
-              controller: _slidableController,
-              child: ListTile(
-                onTap: () => _slidableController.activeState?.close(),
-                contentPadding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-                leading: Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Color(0xffeeeeee),
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  child: Icon(IconFont.icon[mo.icon]),
-                ),
-                title: Text(mo.name),
-                //subtitle: index % 2 == 0 ? Text('备注信息') : null,
-                trailing: Text('${mo.type == 1 ? '-' : ''}${mo.money}'),
-              ),
-              secondaryActions: <Widget>[
-                Builder(
-                  builder: (context) => SlideAction(
-                    child: Text('删除', style: TextStyle(color: Colors.white)),
-                    color: Colors.red,
-                    closeOnTap: false,
-                    onTap: () {
-                      print(1);
-                      _slidableController.activeState?.close();
-                    },
-                  ),
-                ),
-              ],
-            );
-          },
-          separatorBuilder: (context, index) => Divider(height: 0, thickness: .5, color: Color(0xFFeeeeee)),
-        ),
-      ],
-    );
-  }
-}
-
-// 菜单
-class HomeNav extends StatelessWidget {
-  const HomeNav({Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Color(0xfff2f2f2), blurRadius: 5.0)],
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [Icon(Icons.assignment_rounded, size: 32), Text('账单')],
-            ),
-          ),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [Icon(Icons.attach_money_rounded, size: 32), Text('预算')],
-            ),
-          ),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [Icon(Icons.verified_user_rounded, size: 32), Text('资产管理')],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// 收入支出合计
-class HomeSum extends StatelessWidget {
-  HomeSum({Key key}) : super(key: key);
-
-  final _dateTime = DateTime.now().obs;
-
-  @override
-  Widget build(BuildContext context) {
-    AccountMangeService ams = Get.find<AbstractAccountMange>();
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        GestureDetector(
-          onTap: () {
-            DatePicker.showPicker(
-              context,
-              showTitleActions: true,
-              locale: LocaleType.zh,
-              pickerModel: YearMonthPicker(locale: LocaleType.zh, currentTime: _dateTime.value),
-              onConfirm: (date) {
-                _dateTime.value = date;
-                ams.getSumAccount(date.toString().substring(0, 7));
-              },
-            );
-          },
-          child: Container(
-            width: 70,
-            child: Obx(
-              () => Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('${_dateTime.value.year}年', style: TextStyle(color: Colors.black54)),
-                  Text.rich(TextSpan(
-                    children: [
-                      TextSpan(text: '${_dateTime.value.month < 10 ? '0' : ''}${_dateTime.value.month}', style: TextStyle(fontSize: 32)),
-                      TextSpan(text: '月'),
-                      TextSpan(text: ' ▼'),
-                    ],
-                  )),
-                ],
-              ),
-            ),
-          ),
-        ),
-        Container(
-          width: 1,
-          height: 30,
-          color: Colors.black12,
-          margin: EdgeInsets.only(right: 24, left: 16),
-        ),
-        Expanded(
-          child: GetBuilder<AbstractAccountMange>(
-            init: Get.find<AbstractAccountMange>(),
-            builder: (_) => Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('收入', style: TextStyle(color: Colors.black54)),
-                      Text(
-                        '${_.monthSum['payMoney']}',
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w300),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('支出', style: TextStyle(color: Colors.black54)),
-                      Text(
-                        '${_.monthSum['incomeMoney']}',
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w300),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 }

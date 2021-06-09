@@ -15,32 +15,6 @@ class CalculatorWidget extends StatelessWidget {
   final _dateTime = DateTime.now().obs;
   final _todayStr = DateTime.now().toString().substring(0, 10);
 
-  Widget _renderItem({Widget child, String text, Function fun}) {
-    return Expanded(
-      flex: 1,
-      child: GestureDetector(
-        onTap: () {
-          fun(text);
-          HapticFeedback.heavyImpact();
-        },
-        onLongPress: text == 'delete'
-            ? () {
-                _number.value = '0';
-                _opt.value = '';
-                _numberTwo.value = '';
-              }
-            : null,
-        child: Container(
-          color: Color(0xfff5f5f5),
-          margin: EdgeInsets.all(.5),
-          child: Center(
-            child: child != null ? child : Text(text, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
-          ),
-        ),
-      ),
-    );
-  }
-
   /// 计算
   void _compute({opt = ''}) {
     num res;
@@ -149,13 +123,51 @@ class CalculatorWidget extends StatelessWidget {
     );
   }
 
+  Widget _renderItem({Widget child, String text, Function fun}) {
+    return Expanded(
+      flex: 1,
+      child: GestureDetector(
+        onTap: () {
+          fun(text);
+          HapticFeedback.heavyImpact();
+        },
+        onLongPress: text == 'delete'
+            ? () {
+                _number.value = '0';
+                _opt.value = '';
+                _numberTwo.value = '';
+              }
+            : null,
+        child: Container(
+          margin: EdgeInsets.all(.5),
+          decoration: BoxDecoration(
+            color: Color(0xffffffff),
+            border: Border(
+              right: BorderSide(
+                width: .5,
+                color: Colors.black12,
+              ),
+              top: BorderSide(
+                width: .5,
+                color: Colors.black12,
+              ),
+            ),
+          ),
+          child: Center(
+            child: child != null ? child : Text(text, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final double bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Container(
       height: 350,
-      color: Color(0xffeeeeee),
+      color: Color(0xffffffff),
       padding: EdgeInsets.only(bottom: bottomPadding),
       child: Column(
         children: [
@@ -261,13 +273,19 @@ class CalculatorWidget extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                _renderItem(text: '.', fun: _update),
+                _renderItem(text: '0', fun: _update),
+                _renderItem(text: 'delete', fun: _update, child: Icon(Icons.backspace_outlined, color: Colors.black)),
+                ObxValue((data) => _renderItem(text: (data.value == '' ? '完成' : '='), fun: _update), _opt),
+              ], /* [
                 '.',
                 '0',
               ].map((e) => _renderItem(text: e, fun: _update)).toList()
                 ..add(_renderItem(text: 'delete', fun: _update, child: Icon(Icons.backspace_outlined, color: Colors.black)))
-                ..add(ObxValue((data) => _renderItem(text: (data.value == '' ? '完成' : '='), fun: _update), _opt)),
+                ..add(ObxValue((data) => _renderItem(text: (data.value == '' ? '完成' : '='), fun: _update), _opt)), */
             ),
           ),
+          Divider(height: 0, thickness: .5),
         ],
       ),
     );

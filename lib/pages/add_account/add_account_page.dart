@@ -111,8 +111,7 @@ class ProjectGridView extends GetView<AbstractProjectMange> {
         init: controller,
         builder: (_) {
           return Wrap(
-            spacing: 16.0,
-            runSpacing: 8.0,
+            spacing: 16,
             children: _.projectMap[projectType].map((e) => buildItemIcon(_, e)).toList()..add(buildSettingIcon()),
           );
         },
@@ -165,23 +164,26 @@ class ProjectItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 60,
-      height: 80,
+      height: 100,
       child: Column(
         children: [
           Container(
-            height: 60,
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: color,
-              borderRadius: BorderRadius.circular(50),
+              borderRadius: BorderRadius.circular(30),
             ),
             child: Icon(
               IconFont.icon[item.icon],
-              size: 40,
+              size: 28,
               color: Colors.black,
             ),
           ),
-          Text(item.name)
+          Container(
+            alignment: Alignment.center,
+            height: 40,
+            child: Text(item.name),
+          ),
         ],
       ),
     );

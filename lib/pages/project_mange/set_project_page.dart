@@ -172,7 +172,12 @@ class SortProject extends GetView<AbstractProjectMange> {
             TextSpan(
               children: [
                 TextSpan(text: item.name),
-                TextSpan(text: '${item.isDefault ? '' : '（自定义）'}'),
+                TextSpan(
+                  text: '${item.isDefault ? '' : '（自定义）'}',
+                  style: TextStyle(
+                    color: Colors.yellow.shade900,
+                  ),
+                ),
               ],
             ),
           ),

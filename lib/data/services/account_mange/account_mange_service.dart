@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:shici/data/models/account_info_model.dart';
 import 'package:shici/data/models/sum_account_model.dart';
 import 'package:shici/data/provider/account_db_provider.dart';
@@ -18,6 +19,12 @@ class AccountMangeService extends AbstractAccountMange {
     AccountDbProvider adp = AccountDbProvider();
     sumAccountModelList = await adp.getSumAccount(date);
     await getMonthSum(date);
+    if (DateTime.parse('$date-01').isBefore(DateTime.parse('${this.curDate}-01'))) {
+      this.direction = AxisDirection.down;
+    } else {
+      this.direction = AxisDirection.up;
+    }
+    this.curDate = date;
     update();
     return sumAccountModelList;
   }
@@ -31,8 +38,8 @@ class AccountMangeService extends AbstractAccountMange {
   @override
   void onReady() {
     super.onReady();
-    final month = DateTime.now().toString().substring(0, 7);
-    getSumAccount(month);
+    this.curDate = DateTime.now().toString().substring(0, 7);
+    getSumAccount(this.curDate);
     print('ready');
   }
 }
