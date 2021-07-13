@@ -17,36 +17,41 @@ class HomeList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AccountMangeService accountMangeService = Get.find<AbstractAccountMange>();
-    return GetBuilder<AbstractAccountMange>(
-      init: accountMangeService,
-      builder: (_) {
-        return AnimatedSwitcher(
-          duration: Duration(milliseconds: 500),
-          transitionBuilder: (Widget child, Animation<double> animation) => SlideTransitionX(
-            child: child,
-            direction: _.direction,
-            position: animation,
-          ),
-          child: _.sumAccountModelList.length > 0
-              ? ListView(
-                  key: ValueKey(_.curDate),
-                  padding: EdgeInsets.only(top: 0, bottom: 30),
-                  children: List.generate(
-                    _.sumAccountModelList.length,
-                    (index) => buildColumn(_.sumAccountModelList[index]),
-                  ),
-                )
-              : Container(
-                  height: 200,
-                  margin: EdgeInsets.only(bottom: 100),
-                  child: Icon(
-                    Icons.delete_forever,
-                    size: 200,
-                    color: Colors.black12,
-                  ),
-                ),
-        );
+    return NotificationListener(
+      onNotification: (ScrollUpdateNotification notification) {
+        print(notification.metrics.pixels);
+        return true;
       },
+      child: GetBuilder<AbstractAccountMange>(
+        init: accountMangeService,
+        builder: (_) {
+          return AnimatedSwitcher(
+            switchInCurve: Curves.easeInOutCirc,
+            switchOutCurve: Curves.easeInOutCirc,
+            duration: Duration(milliseconds: 500),
+            transitionBuilder: (Widget child, Animation<double> animation) => SlideTransitionX(
+              child: child,
+              direction: _.direction,
+              position: animation,
+            ),
+            child: _.sumAccountModelList.length > 0
+                ? ListView(
+                    key: ValueKey(_.curDate),
+                    padding: EdgeInsets.only(top: 0, bottom: 30),
+                    children: List.generate(
+                      _.sumAccountModelList.length,
+                      (index) => buildColumn(_.sumAccountModelList[index]),
+                    ),
+                  )
+                : Container(
+                    height: 200,
+                    margin: EdgeInsets.only(bottom: 100),
+                    child: Image(
+                      image: AssetImage('assets/images/empty.png'),
+                    )),
+          );
+        },
+      ),
     );
   }
 
