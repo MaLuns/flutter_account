@@ -1,16 +1,18 @@
-# shici
+# Flutter_Account
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### TODO
+- [x] 首页
+    - [x] 列表统计
+    - [ ] 账单管理
+    - [ ] 预算管理
+    - [ ] 资产管理
+- [x] 记账
+    - [x] 类别管理
+    - [x] 类别排序
+    - [x] 增加收支记录
+- [x] 图表
+    - [ ] 按年月日分类统计
+    - [ ] 收支排行
+- [x] 个人面板
+    - [ ] 设置
+    - [ ] 主题配置
